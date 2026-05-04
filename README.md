@@ -1,6 +1,6 @@
-# 🌐 Chrome Homepage Hub
+# 🌐 Chrome Homepages
 
-Welcome to the **Chrome Homepage Hub**! This project is a collection of custom-designed homepages created to replace the default browser 'New Tab' page. Each design focuses on different needs—be it productivity, minimalism, or aesthetics.
+Welcome to the **Chrome Homepages**! This project is a collection of custom-designed homepages created to replace the default browser 'New Tab' page. Each design focuses on different needs—be it productivity, minimalism, or aesthetics.
 
 ## 🚀 Concept
 Instead of a cluttered default page, this repository provides simple, lightweight HTML files that you can set as your browser's starting page. 
@@ -28,10 +28,6 @@ Instead of a cluttered default page, this repository provides simple, lightweigh
     *   Add the local path of your favorite HTML file.
     *   *Tip:* You can also use extensions like "Custom New Tab" to point to these files.
 
-## 📂 Folder Structure
-*   `/Design-1-Minimal`: Focuses on a clean look.
-*   `/Design-2-Productive`: Includes a Todo list and Search bar.
-*   `/Assets`: Images and icons used in the designs.
 
 ---
 *Created with ❤️ and a little help from AI to make browsing better.*
