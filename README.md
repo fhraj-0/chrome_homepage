@@ -17,7 +17,6 @@ Instead of a cluttered default page, this repository provides simple, lightweigh
 *   **JavaScript** (For time and dynamic features)
 
 ## 📸 Screenshots
-**
 ** ![Homepage Preview](screenshot.png)
 
 ## ⚙️ How to Use
