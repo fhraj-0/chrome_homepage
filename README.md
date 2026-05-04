@@ -18,7 +18,7 @@ Instead of a cluttered default page, this repository provides simple, lightweigh
 
 ## 📸 Screenshots
 ** ![Homepage Preview](screenshot.png)
-
+> **✨ Live Demo:** [Click here to view the homepage](https://fhraj-0.github.io/chrome_homepages/)
 ## ⚙️ How to Use
 1.  **Clone the Repo:** 
     `git clone https://github.com/your-username/chrome_homepage.git`
