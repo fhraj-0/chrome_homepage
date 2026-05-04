@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Start</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e2e8f0;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Cyber Grid Background */
+        .cyber-grid {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* Glass Components */
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Icon Glow */
+        .icon-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .icon-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%) translateX(10px);
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+            z-index: 50;
+        }
+        .icon-btn:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Goal Checkbox */
+        .goal-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .goal-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #6366f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .goal-item.completed .goal-circle {
+            background-color: #6366f1;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+        .goal-item.completed span {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+        .check-mark {
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+        .goal-item.completed .check-mark {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* --- New Search Dropdown & Input Styles --- */
+        .search-input {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        /* Focus states per engine */
+        .search-container[data-engine="google"] .search-input:focus { border-color: #6366f1; box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
+        .search-container[data-engine="youtube"] .search-input:focus { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        .search-container[data-engine="perplexity"] .search-input:focus { border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+        .search-container[data-engine="duckduckgo"] .search-input:focus { border-color: #f97316; box-shadow: 0 0 20px rgba(249, 115, 22, 0.2); }
+        .search-container[data-engine="github"] .search-input:focus { border-color: #f8fafc; box-shadow: 0 0 20px rgba(248, 250, 252, 0.2); }
+        .search-container[data-engine="stackoverflow"] .search-input:focus { border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+        .search-container[data-engine="reddit"] .search-input:focus { border-color: #ff4500; box-shadow: 0 0 20px rgba(255, 69, 0, 0.2); }
+        .search-container[data-engine="wikipedia"] .search-input:focus { border-color: #e2e8f0; box-shadow: 0 0 20px rgba(226, 232, 240, 0.2); }
+        .search-container[data-engine="bing"] .search-input:focus { border-color: #0ea5e9; box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); }
+        /* AI Colors */
+        .search-container[data-engine="chatgpt"] .search-input:focus { border-color: #10a37f; box-shadow: 0 0 20px rgba(16, 163, 127, 0.2); }
+        .search-container[data-engine="copilot"] .search-input:focus { border-color: #2563eb; box-shadow: 0 0 20px rgba(37, 99, 235, 0.2); }
+        .search-container[data-engine="claude"] .search-input:focus { border-color: #d97757; box-shadow: 0 0 20px rgba(217, 119, 87, 0.2); }
+        .search-container[data-engine="phind"] .search-input:focus { border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+        .search-container[data-engine="blackbox"] .search-input:focus { border-color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+        .search-container[data-engine="you"] .search-input:focus { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+
+
+        /* Dropdown Menu */
+        .engine-dropdown {
+            position: absolute;
+            top: 120%;
+            left: 0;
+            width: 240px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 6px;
+            display: none; /* Hidden by default */
+            z-index: 50;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform-origin: top left;
+        }
+        
+        /* Custom Scrollbar for dropdown */
+        .engine-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        .engine-dropdown::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.02);
+        }
+        .engine-dropdown::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        .engine-dropdown.show {
+            display: block;
+            animation: fadeIn 0.15s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+        .dropdown-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: white;
+        }
+        
+        /* Divider in dropdown */
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 6px 0;
+        }
+        .dropdown-header {
+            font-size: 10px;
+            color: #64748b;
+            padding: 4px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Trigger Button */
+        .engine-trigger {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .engine-trigger:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .engine-trigger svg {
+            transition: color 0.3s;
+        }
+
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden selection:bg-indigo-500 selection:text-white" onclick="closeDropdownOnOutsideClick(event)">
+
+    <!-- Background -->
+    <div class="fixed inset-0 cyber-grid pointer-events-none z-0"></div>
+    <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- LEFT SIDEBAR: Shortcuts -->
+    <aside class="glass-panel border-l-0 border-y-0 w-16 h-full flex flex-col items-center py-8 gap-6 z-20 shadow-2xl">
+        <div class="mb-4 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <div class="w-8 h-[1px] bg-white/10"></div>
+
+        <a href="https://www.youtube.com" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span class="tooltip font-mono">YouTube</span>
+        </a>
+        <a href="https://gemini.google.com" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            <span class="tooltip font-mono">Gemini</span>
+        </a>
+        <a href="https://gemini.google.com/share/b6cab1760a51" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 5.925a4.406 4.406 0 0 0-4.07 2.536 4.39 4.39 0 0 0 .565 4.678l-1.096 1.9a7.319 7.319 0 0 1-1.39-7.988A7.324 7.324 0 0 1 12.56 2.112a7.35 7.35 0 0 1 5.955 3.102l-1.77 1.022a4.378 4.378 0 0 0-4.728-.31Zm8.327 5.25a7.33 7.33 0 0 1-1.353 7.382 7.315 7.315 0 0 1-6.848 2.37l.45-1.99a4.395 4.395 0 0 0 3.737-1.47 4.385 4.385 0 0 0 .34-4.824l1.83-1.057a7.37 7.37 0 0 1 1.844 5.59ZM9.68 18.067a4.38 4.38 0 0 0 3.99-2.018l2.008.36a7.333 7.333 0 0 1-5.748 3.597 7.35 7.35 0 0 1-5.69-2.63l1.52-1.326a4.4 4.4 0 0 0 3.92 2.017Z"/></svg>
+            <span class="tooltip font-mono">English Learning</span>
+        </a>
+        <a href="https://notebooklm.google.com" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <span class="tooltip font-mono">NotebookLM</span>
+        </a>
+
+        <!-- Google Drive -->
+        <a href="https://drive.google.com" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 3.5h13.12L16.3 15H3.18l6.55-11.5M19.16 21H6l3.43-6h13.12l-3.39 6z"/></svg>
+            <span class="tooltip font-mono">Google Drive</span>
+        </a>
+
+        <!-- Google Tasks -->
+        <a href="https://tasks.google.com" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 5.18L10.59 16.6l-4.24-4.24 1.41-1.41 2.83 2.83 10-10L22 5.18zm-2.21 5.04c.13.57.21 1.17.21 1.78 0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8c1.58 0 3.04.46 4.28 1.25l1.44-1.44A9.9 9.9 0 0 0 12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-1.19-.22-2.33-.6-3.39l-1.61 1.61z"/></svg>
+            <span class="tooltip font-mono">Google Tasks</span>
+        </a>
+
+        <div class="w-8 h-[1px] bg-white/10 mt-auto"></div>
+        <a href="https://gemini.google.com/gem/d52d603c8f42" target="_blank" class="icon-btn p-3 rounded-xl text-slate-400 mb-4">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.48 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+            <span class="tooltip font-mono">Asistent</span>
+        </a>
+    </aside>
+
+    <!-- CENTER HUB -->
+    <main class="flex-1 flex flex-col items-center justify-center relative z-10 p-4">
+        <div class="w-full max-w-2xl flex flex-col items-center gap-8">
+            
+            <!-- Clock -->
+            <div class="text-center space-y-2">
+                <h1 id="clock" class="text-5xl md:text-7xl font-bold font-mono tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">00:00</h1>
+                <p id="date" class="text-indigo-400 font-mono text-xs tracking-[0.2em] uppercase opacity-80 mt-2">SYSTEM READY</p>
+            </div>
+
+            <!-- SEARCH CONTAINER -->
+            <div class="w-full search-container" data-engine="google">
+                
+                <!-- Search Form -->
+                <form id="search-form" action="https://www.google.com/search" method="GET" target="_blank" class="relative group">
+                    
+                    <!-- Engine Trigger (Left Button) -->
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <button type="button" class="engine-trigger flex items-center justify-center text-slate-400 hover:text-white" onclick="toggleDropdown(event)">
+                            <svg id="current-icon" class="w-5 h-5 transition-colors text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+                                <!-- Default Google Icon -->
+                                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+                            </svg>
+                            <svg class="w-3 h-3 ml-1 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="engine-dropdown" class="engine-dropdown">
+                            <div class="dropdown-header">Search Engines</div>
+                            <!-- Google -->
+                            <div class="dropdown-item active" onclick="setEngine('google', this)">
+                                <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>
+                                <span>Google</span>
+                            </div>
+                            <!-- YouTube -->
+                            <div class="dropdown-item" onclick="setEngine('youtube', this)">
+                                <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                <span>YouTube</span>
+                            </div>
+                            <!-- Perplexity -->
+                            <div class="dropdown-item" onclick="setEngine('perplexity', this)">
+                                <svg class="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8zm-1-13h2v2h-2zm0 4h2v6h-2z"/></svg>
+                                <span>Perplexity AI</span>
+                            </div>
+                            
+                            <!-- Divider for AI Bots -->
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-header">AI Chatbots</div>
+
+                            <!-- ChatGPT -->
+                            <div class="dropdown-item" onclick="setEngine('chatgpt', this)">
+                                <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 5.925a4.406 4.406 0 0 0-4.07 2.536 4.39 4.39 0 0 0 .565 4.678l-1.096 1.9a7.319 7.319 0 0 1-1.39-7.988A7.324 7.324 0 0 1 12.56 2.112a7.35 7.35 0 0 1 5.955 3.102l-1.77 1.022a4.378 4.378 0 0 0-4.728-.31Zm8.327 5.25a7.33 7.33 0 0 1-1.353 7.382 7.315 7.315 0 0 1-6.848 2.37l.45-1.99a4.395 4.395 0 0 0 3.737-1.47 4.385 4.385 0 0 0 .34-4.824l1.83-1.057a7.37 7.37 0 0 1 1.844 5.59ZM9.68 18.067a4.38 4.38 0 0 0 3.99-2.018l2.008.36a7.333 7.333 0 0 1-5.748 3.597 7.35 7.35 0 0 1-5.69-2.63l1.52-1.326a4.4 4.4 0 0 0 3.92 2.017Z"/></svg>
+                                <span>ChatGPT</span>
+                            </div>
+                            <!-- Copilot -->
+                            <div class="dropdown-item" onclick="setEngine('copilot', this)">
+                                <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3.5a1 1 0 0 1 1.993.117L13 7.61v4.78a1 1 0 0 1-1.993.117L11 12.39V7.61a1 1 0 0 1 1-2.11zM12 15a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>
+                                <span>Copilot</span>
+                            </div>
+                            <!-- Claude -->
+                            <div class="dropdown-item" onclick="setEngine('claude', this)">
+                                <svg class="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                <span>Claude AI</span>
+                            </div>
+                            <!-- Phind -->
+                            <div class="dropdown-item" onclick="setEngine('phind', this)">
+                                <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Zm-1-13h2v6h-2Zm0 8h2v2h-2Z"/></svg>
+                                <span>Phind</span>
+                            </div>
+                            <!-- Blackbox AI -->
+                            <div class="dropdown-item" onclick="setEngine('blackbox', this)">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm2 2v14h14V5H5z"/></svg>
+                                <span>Blackbox</span>
+                            </div>
+                             <!-- You.com -->
+                             <div class="dropdown-item" onclick="setEngine('you', this)">
+                                <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0L1.5 6v12L12 24l10.5-6V6L12 0zm0 2.3l8.5 4.9v9.7L12 21.7 3.5 16.9V7.2L12 2.3z"/></svg>
+                                <span>You.com</span>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-header">Others</div>
+
+                            <!-- DuckDuckGo -->
+                            <div class="dropdown-item" onclick="setEngine('duckduckgo', this)">
+                                <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.48 14.66c-2.43.34-4.52-1.37-4.52-3.83 0-.85.19-1.63.5-2.29.3-.65.71-1.22 1.18-1.69a6.04 6.04 0 0 1 1.77-1.12c.7-.27 1.45-.41 2.22-.41 1.13 0 2.18.3 3.1.84.44.26.85.58 1.21.95.36.37.66.78.89 1.23.23.45.39.94.46 1.45.03.25.04.5.04.76 0 1.25-.43 2.42-1.15 3.37-.73.95-1.74 1.63-2.9 1.95-.27.08-.55.13-.83.17-.66.08-1.32.06-1.97-.04z"/></svg>
+                                <span>DuckDuckGo</span>
+                            </div>
+                             <!-- GitHub -->
+                             <div class="dropdown-item" onclick="setEngine('github', this)">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                                <span>GitHub</span>
+                            </div>
+                            <!-- Stack Overflow -->
+                            <div class="dropdown-item" onclick="setEngine('stackoverflow', this)">
+                                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24"><path d="M18.986 21.865v-6.404h2.134V24H1.844v-8.539h2.13v6.404h15.012zM6.111 19.731H16.85v-2.137H6.111v2.137zm.259-4.852l10.48 2.189.451-2.07-10.478-2.187-.453 2.068zm1.359-5.056l9.705 4.53.903-1.95-9.706-4.53-.902 1.95zm2.714-6.065l8.735 6.49 1.27-1.75-8.738-6.49-1.267 1.75zM12.725 0l3 1.373-12.86 11.23-1.424-1.628L12.725 0z"/></svg>
+                                <span>Stack Overflow</span>
+                            </div>
+                            <!-- Reddit -->
+                            <div class="dropdown-item" onclick="setEngine('reddit', this)">
+                                <svg class="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+                                <span>Reddit</span>
+                            </div>
+                            <!-- Wikipedia -->
+                            <div class="dropdown-item" onclick="setEngine('wikipedia', this)">
+                                <svg class="w-4 h-4 text-slate-200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.669 17.51l-2.618-9.972-2.619 9.972h-1.931l3.587-12.011h2.158l2.094 8.653 2.112-8.653h2.158l3.57 12.011h-1.95l-2.601-9.953-2.637 9.953h-1.323z"/></svg>
+                                <span>Wikipedia</span>
+                            </div>
+                            <!-- Bing -->
+                            <div class="dropdown-item" onclick="setEngine('bing', this)">
+                                <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M5.4 1.5H16l-3.3 4.2L16 11 8.7 22.5l-3.3-1.7V1.5z"/></svg>
+                                <span>Bing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input -->
+                    <input 
+                        id="search-input"
+                        type="text" 
+                        name="q" 
+                        class="search-input w-full py-4 pl-16 pr-4 text-sm font-mono text-white rounded-xl placeholder-slate-600 focus:placeholder-slate-500" 
+                        placeholder="SEARCH_GOOGLE..." 
+                        autocomplete="off" 
+                        autofocus
+                    >
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR: Goals -->
+    <aside class="w-72 h-full flex flex-col justify-center p-6 z-20">
+        <div class="glass-panel rounded-2xl p-6 border border-white/10">
+            <h2 class="text-xs font-mono text-indigo-400 tracking-widest mb-6 uppercase border-b border-white/10 pb-2">Mission Protocols</h2>
+            <ul class="space-y-4">
+                <li class="goal-item flex items-center gap-3 group" onclick="toggleGoal(this)">
+                    <div class="goal-circle"><svg class="check-mark w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+                    <span class="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">Develop Personality</span>
+                </li>
+                <li class="goal-item flex items-center gap-3 group" onclick="toggleGoal(this)">
+                    <div class="goal-circle"><svg class="check-mark w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+                    <span class="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">English Learning</span>
+                </li>
+                <li class="goal-item flex items-center gap-3 group" onclick="toggleGoal(this)">
+                    <div class="goal-circle"><svg class="check-mark w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+                    <span class="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">Master AI & CS</span>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <script>
+        // --- Clock Logic ---
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            const strDate = now.toLocaleDateString('en-US', options).toUpperCase();
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+            document.getElementById('date').textContent = `${strDate} • ONLINE`;
+        }
+
+        // --- Goal Logic ---
+        function toggleGoal(element) {
+            element.classList.toggle('completed');
+        }
+
+        // --- Search Switcher Logic ---
+        const engines = {
+            google: {
+                action: "https://www.google.com/search",
+                placeholder: "SEARCH_GOOGLE...",
+                name: "q",
+                color: "text-indigo-400",
+                icon: "M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+            },
+            youtube: {
+                action: "https://www.youtube.com/results",
+                placeholder: "SEARCH_YOUTUBE...",
+                name: "search_query",
+                color: "text-red-500",
+                icon: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+            },
+            perplexity: {
+                action: "https://www.perplexity.ai/search",
+                placeholder: "ASK_PERPLEXITY_AI...",
+                name: "q",
+                color: "text-cyan-400",
+                icon: "M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8zm-1-13h2v2h-2zm0 4h2v6h-2z"
+            },
+            chatgpt: {
+                action: "https://chatgpt.com/",
+                placeholder: "ASK_CHATGPT...",
+                name: "q",
+                color: "text-emerald-500",
+                icon: "M12.017 5.925a4.406 4.406 0 0 0-4.07 2.536 4.39 4.39 0 0 0 .565 4.678l-1.096 1.9a7.319 7.319 0 0 1-1.39-7.988A7.324 7.324 0 0 1 12.56 2.112a7.35 7.35 0 0 1 5.955 3.102l-1.77 1.022a4.378 4.378 0 0 0-4.728-.31Zm8.327 5.25a7.33 7.33 0 0 1-1.353 7.382 7.315 7.315 0 0 1-6.848 2.37l.45-1.99a4.395 4.395 0 0 0 3.737-1.47 4.385 4.385 0 0 0 .34-4.824l1.83-1.057a7.37 7.37 0 0 1 1.844 5.59ZM9.68 18.067a4.38 4.38 0 0 0 3.99-2.018l2.008.36a7.333 7.333 0 0 1-5.748 3.597 7.35 7.35 0 0 1-5.69-2.63l1.52-1.326a4.4 4.4 0 0 0 3.92 2.017Z"
+            },
+            copilot: {
+                action: "https://www.bing.com/chat",
+                placeholder: "ASK_COPILOT...",
+                name: "q",
+                color: "text-blue-500",
+                icon: "M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3.5a1 1 0 0 1 1.993.117L13 7.61v4.78a1 1 0 0 1-1.993.117L11 12.39V7.61a1 1 0 0 1 1-2.11zM12 15a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"
+            },
+            claude: {
+                action: "https://claude.ai/new",
+                placeholder: "ASK_CLAUDE...",
+                name: "q",
+                color: "text-orange-400",
+                icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+            },
+            phind: {
+                action: "https://www.phind.com/search",
+                placeholder: "ASK_PHIND_DEV...",
+                name: "q",
+                color: "text-purple-400",
+                icon: "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Zm-1-13h2v6h-2Zm0 8h2v2h-2Z"
+            },
+            blackbox: {
+                action: "https://www.blackbox.ai/",
+                placeholder: "ASK_BLACKBOX...",
+                name: "q",
+                color: "text-white",
+                icon: "M3 3h18v18H3V3zm2 2v14h14V5H5z"
+            },
+            you: {
+                action: "https://you.com/search",
+                placeholder: "ASK_YOU.COM...",
+                name: "q",
+                color: "text-blue-400",
+                icon: "M12 0L1.5 6v12L12 24l10.5-6V6L12 0zm0 2.3l8.5 4.9v9.7L12 21.7 3.5 16.9V7.2L12 2.3z"
+            },
+            duckduckgo: {
+                action: "https://duckduckgo.com/",
+                placeholder: "SEARCH_DUCKDUCKGO...",
+                name: "q",
+                color: "text-orange-500",
+                icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.48 14.66c-2.43.34-4.52-1.37-4.52-3.83 0-.85.19-1.63.5-2.29.3-.65.71-1.22 1.18-1.69a6.04 6.04 0 0 1 1.77-1.12c.7-.27 1.45-.41 2.22-.41 1.13 0 2.18.3 3.1.84.44.26.85.58 1.21.95.36.37.66.78.89 1.23.23.45.39.94.46 1.45.03.25.04.5.04.76 0 1.25-.43 2.42-1.15 3.37-.73.95-1.74 1.63-2.9 1.95-.27.08-.55.13-.83.17-.66.08-1.32.06-1.97-.04z"
+            },
+            github: {
+                action: "https://github.com/search",
+                placeholder: "SEARCH_GITHUB...",
+                name: "q",
+                color: "text-white",
+                icon: "M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+            },
+            stackoverflow: {
+                action: "https://stackoverflow.com/search",
+                placeholder: "SEARCH_STACK_OVERFLOW...",
+                name: "q",
+                color: "text-yellow-500",
+                icon: "M18.986 21.865v-6.404h2.134V24H1.844v-8.539h2.13v6.404h15.012zM6.111 19.731H16.85v-2.137H6.111v2.137zm.259-4.852l10.48 2.189.451-2.07-10.478-2.187-.453 2.068zm1.359-5.056l9.705 4.53.903-1.95-9.706-4.53-.902 1.95zm2.714-6.065l8.735 6.49 1.27-1.75-8.738-6.49-1.267 1.75zM12.725 0l3 1.373-12.86 11.23-1.424-1.628L12.725 0z"
+            },
+            reddit: {
+                action: "https://www.reddit.com/search",
+                placeholder: "SEARCH_REDDIT...",
+                name: "q",
+                color: "text-orange-600",
+                icon: "M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"
+            },
+            wikipedia: {
+                action: "https://en.wikipedia.org/w/index.php",
+                placeholder: "SEARCH_WIKIPEDIA...",
+                name: "search",
+                color: "text-slate-200",
+                icon: "M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.669 17.51l-2.618-9.972-2.619 9.972h-1.931l3.587-12.011h2.158l2.094 8.653 2.112-8.653h2.158l3.57 12.011h-1.95l-2.601-9.953-2.637 9.953h-1.323z"
+            },
+            bing: {
+                action: "https://www.bing.com/search",
+                placeholder: "SEARCH_BING...",
+                name: "q",
+                color: "text-blue-400",
+                icon: "M5.4 1.5H16l-3.3 4.2L16 11 8.7 22.5l-3.3-1.7V1.5z"
+            }
+        };
+
+        let currentEngine = 'google';
+
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('engine-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function closeDropdownOnOutsideClick(event) {
+            const dropdown = document.getElementById('engine-dropdown');
+            if (!event.target.closest('.engine-dropdown') && !event.target.closest('.engine-trigger')) {
+                dropdown.classList.remove('show');
+            }
+        }
+
+        function setEngine(engineKey, element) {
+            currentEngine = engineKey;
+            const engine = engines[engineKey];
+            const dropdown = document.getElementById('engine-dropdown');
+            
+            // UI Updates
+            document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            document.querySelector('.search-container').setAttribute('data-engine', engineKey);
+
+            const form = document.getElementById('search-form');
+            const input = document.getElementById('search-input');
+            const currentIcon = document.getElementById('current-icon');
+
+            form.action = engine.action;
+            input.placeholder = engine.placeholder;
+            input.name = engine.name;
+            
+            // Update Trigger Icon
+            currentIcon.className = `w-5 h-5 transition-colors ${engine.color}`;
+            currentIcon.querySelector('path').setAttribute('d', engine.icon);
+
+            dropdown.classList.remove('show');
+            input.focus();
+        }
+
+        // Init
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
